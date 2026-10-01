@@ -1,133 +1,218 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Which SQL injection vulnerabilities should you fix first?</title>
-<style>
-  :root{
-    --blue:#2a78d6; --blue-dark:#1c5cab; --soft:#eaf2fd;
-    --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
-    --line:#e1e0d9; --bg:#fcfcfb;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif;
-    -webkit-text-size-adjust:100%;
-  }
-  .wrap{max-width:720px; margin:0 auto; padding:28px 20px 64px}
-  header{border-bottom:2px solid var(--blue); padding-bottom:22px; margin-bottom:26px}
-  .kicker{font-size:13px; letter-spacing:.08em; text-transform:uppercase;
-          color:var(--muted); margin:0 0 10px}
-  h1{font-size:27px; line-height:1.25; margin:0 0 14px; font-weight:800}
-  .question{
-    background:var(--blue); color:#fff; border-radius:10px;
-    padding:14px 16px; font-size:15px; font-weight:600; line-height:1.5;
-  }
-  .authors{margin-top:16px; font-size:14px; color:var(--ink2)}
-  .cta{
-    display:block; text-align:center; background:var(--blue); color:#fff;
-    text-decoration:none; font-size:17px; font-weight:700;
-    padding:16px; border-radius:10px; margin:0 0 10px;
-  }
-  .cta:active{background:var(--blue-dark)}
-  .cta-note{text-align:center; font-size:13px; color:var(--muted); margin:0 0 32px}
-  h2{font-size:19px; margin:34px 0 14px; font-weight:800}
-  p{margin:0 0 14px}
-  .figs{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:0 0 8px}
-  .fig{background:var(--soft); border-radius:10px; padding:14px 8px; text-align:center}
-  .fig b{display:block; font-size:21px; color:var(--blue); font-weight:800; line-height:1.2}
-  .fig span{display:block; font-size:11.5px; color:var(--ink2); margin-top:6px; line-height:1.4}
-  .steps{list-style:none; padding:0; margin:0}
-  .steps li{
-    border-left:3px solid var(--blue); padding:2px 0 2px 14px; margin:0 0 16px;
-  }
-  .steps b{display:block; font-size:15px}
-  .steps span{font-size:14.5px; color:var(--ink2)}
-  ol.refs{padding-left:20px; margin:0; font-size:14.5px}
-  ol.refs li{margin:0 0 16px; line-height:1.6}
-  ol.refs a{color:var(--blue); word-break:break-word}
-  .defs{border-top:1px solid var(--line); margin-top:36px; padding-top:18px;
-        font-size:13px; color:var(--muted); line-height:1.7}
-  .defs b{color:var(--ink2)}
-  footer{margin-top:30px; padding-top:18px; border-top:1px solid var(--line);
-         font-size:13px; color:var(--muted)}
-  @media (max-width:420px){
-    h1{font-size:23px}
-    .figs{grid-template-columns:1fr; }
-    .fig{display:flex; align-items:baseline; gap:12px; text-align:left; padding:12px 14px}
-    .fig b{font-size:20px}
-    .fig span{margin-top:0}
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Which SQL injection vulnerabilities should you fix first?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+    />
+    <style>
+      :root {
+        --ink: #080c14;
+        --panel: #111828;
+        --line: #1e2739;
+        --fg: #e9edf5;
+        --dim: #8995ad;
+        --accent: #4d9fff;
+        --danger: #ff6b6b;
+        --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+        --sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        background: var(--ink);
+        color: var(--fg);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-text-size-adjust: 100%;
+        background-image: radial-gradient(
+          800px 400px at 20% -10%,
+          rgba(77, 159, 255, 0.15),
+          transparent 70%
+        );
+        background-repeat: no-repeat;
+      }
+      .wrap {
+        max-width: 620px;
+        margin: 0 auto;
+        padding-inline: 22px;
+        padding-block: 56px 72px;
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin: 0 0 20px;
+      }
+      h1 {
+        font-size: clamp(29px, 7vw, 42px);
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 22px;
+        text-wrap: balance;
+      }
+      h1 em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .code {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--dim);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
+        overflow-x: auto;
+        white-space: pre;
+        margin: 0 0 30px;
+      }
+      .code .inj {
+        color: var(--danger);
+        font-weight: 700;
+      }
+      .byline {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--dim);
+        margin: 0 0 34px;
+      }
+      .cta {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        background: var(--accent);
+        color: #06101f;
+        font-weight: 800;
+        font-size: 17px;
+        padding: 19px;
+        border-radius: 12px;
+        margin-bottom: 46px;
+      }
+      .cta:hover {
+        filter: brightness(1.08);
+      }
+      .cta:focus-visible {
+        outline: 3px solid var(--fg);
+        outline-offset: 3px;
+      }
+      h2 {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin: 0 0 6px;
+      }
+      .src a {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 14px 2px;
+        border-top: 1px solid var(--line);
+      }
+      .src a:last-child {
+        border-bottom: 1px solid var(--line);
+      }
+      .src a:hover {
+        background: rgba(77, 159, 255, 0.06);
+      }
+      .src .t {
+        display: block;
+        font-size: 14.5px;
+        line-height: 1.45;
+      }
+      .src .m {
+        display: block;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--dim);
+        margin-top: 5px;
+      }
+      .src .m::after {
+        content: " ↗";
+        color: var(--accent);
+      }
+      footer {
+        margin-top: 40px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--dim);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <p class="eyebrow">
+        Poster &amp; Tech Talk · English for Computer Science · BUT3
+      </p>
 
-  <header>
-    <p class="kicker">Poster &amp; Tech Talk · English for Computer Science · BUT3</p>
-    <h1>Which SQL injection vulnerabilities should you fix first?</h1>
-    <div class="question">
-      Given that not all vulnerabilities can be fixed, how can a company
-      detect, prioritize, and block SQL injection attacks?
+      <h1>
+        Which SQL injection vulnerabilities should you <em>fix first</em>?
+      </h1>
+
+      <div class="code">
+        pass = <span class="inj">'' OR '1'='1' --</span> → authentication
+        bypassed
+      </div>
+
+      <p class="byline">
+        Magadiyev Imam &amp; Sentayehu Yeadonaye — IUT Paul Sabatier
+      </p>
+
+      <a class="cta" href="poster.pdf">Open the full poster →</a>
+
+      <h2>Sources</h2>
+      <div class="src">
+        <a
+          href="https://pure.qub.ac.uk/files/612065296/SQL_injection_attack.pdf"
+        >
+          <span class="t"
+            >Paul, Sharma &amp; Olukoya —
+            <i
+              >SQL injection attack: Detection, prioritization &amp;
+              prevention</i
+            ></span
+          >
+          <span class="m">J. Information Security and Applications · 2024</span>
+        </a>
+        <a href="https://top10.owasp.org/2025/A05_2025-Injection/">
+          <span class="t">OWASP Top 10:2025 — A05 Injection</span>
+          <span class="m">OWASP Foundation · 2025</span>
+        </a>
+        <a
+          href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+        >
+          <span class="t">SQL Injection Prevention Cheat Sheet</span>
+          <span class="m">OWASP Cheat Sheet Series</span>
+        </a>
+        <a
+          href="https://www.cybertec-postgresql.com/en/postgresql-tde-performance/"
+        >
+          <span class="t"
+            >PostgreSQL performance: Encrypted vs. unencrypted</span
+          >
+          <span class="m">CYBERTEC PostgreSQL International · 2025</span>
+        </a>
+      </div>
+
+      <footer>IUT Paul Sabatier · Université Toulouse III · 2026</footer>
     </div>
-    <p class="authors">MAGADIYEV Imam &amp; SENTAYEHU Yeadonaye — IUT Paul Sabatier, Toulouse III</p>
-  </header>
-
-  <a class="cta" href="poster.pdf">📄 Open the full poster (PDF)</a>
-  <p class="cta-note">Best viewed on a larger screen</p>
-
-  <h2>Key figures</h2>
-  <div class="figs">
-    <div class="fig"><b>62,445</b><span>injection-family CVEs recorded in 2025</span></div>
-    <div class="fig"><b>97%</b><span>average F1-score of the CNN-LSTM detector</span></div>
-    <div class="fig"><b>457,233</b><span>network traffic samples used for training</span></div>
-  </div>
-
-  <h2>Our answer, in three steps</h2>
-  <ul class="steps">
-    <li><b>1 · Detect</b><span>A hybrid CNN-LSTM model classifies web and network
-      traffic, reaching a 97% average F1-score.</span></li>
-    <li><b>2 · Prioritize</b><span>Vulnerabilities are ranked by their real
-      exploitability, using published CVE data — so limited resources go to the
-      flaws an attacker can actually use.</span></li>
-    <li><b>3 · Block</b><span>Prepared statements with variable binding, backed by
-      least-privilege database accounts.</span></li>
-  </ul>
-
-  <h2>Sources</h2>
-  <ol class="refs">
-    <li>Paul, A., Sharma, V. &amp; Olukoya, O. (2024). <i>SQL injection attack:
-      Detection, prioritization &amp; prevention.</i> Journal of Information Security
-      and Applications, 85, 103871.<br>
-      <a href="https://pure.qub.ac.uk/files/612065296/SQL_injection_attack.pdf">Read the paper (open access PDF)</a></li>
-
-    <li>OWASP Foundation (2025). <i>OWASP Top 10:2025 — A05:2025 Injection.</i><br>
-      <a href="https://top10.owasp.org/2025/A05_2025-Injection/">top10.owasp.org/2025/A05_2025-Injection</a></li>
-
-    <li>CYBERTEC PostgreSQL International (2025). <i>PostgreSQL performance:
-      Encrypted vs. unencrypted.</i><br>
-      <a href="https://www.cybertec-postgresql.com/en/postgresql-tde-performance/">cybertec-postgresql.com</a></li>
-
-    <li>OWASP Foundation. <i>SQL Injection Prevention Cheat Sheet</i>, OWASP Cheat Sheet Series.<br>
-      <a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">cheatsheetseries.owasp.org</a></li>
-  </ol>
-
-  <div class="defs">
-    <p><b>OWASP</b> — Open Worldwide Application Security Project: a non-profit that
-    publishes the reference ranking of the 10 most critical web application security
-    risks. The 2025 edition is computed from 2.8 million applications and 175,000 CVE
-    records, not from expert opinion.</p>
-    <p><b>CVE</b> — Common Vulnerabilities and Exposures: the unique public identifier
-    given to each known security flaw, such as CVE-2024-3094. One CVE is one distinct
-    flaw, not one attack.</p>
-  </div>
-
-  <footer>
-    IUT Paul Sabatier · Université Toulouse III · 2026
-  </footer>
-
-</div>
-</body>
+  </body>
 </html>
