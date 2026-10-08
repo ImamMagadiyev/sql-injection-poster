@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choix du fond</title>
+<style>
+  @font-face{font-family:'Lexend'; font-weight:500 700; src:url(fonts/lexend.woff2) format('woff2')}
+  @font-face{font-family:'Inter'; font-weight:400 600; src:url(fonts/inter.woff2) format('woff2')}
+  body{margin:0; padding:28px 24px 48px; background:#e9ecf2; font-family:Inter, system-ui, sans-serif; color:#1b2333}
+  h1{font-family:Lexend, sans-serif; font-size:24px; margin:0 0 4px}
+  .sub{margin:0 0 24px; color:#5b6478}
+  h2{font-family:Lexend, sans-serif; font-size:17px; margin:26px 0 12px}
+  .row{display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:20px}
+  figure{margin:0}
+  figcaption{font-weight:600; margin-bottom:8px}
+  figcaption span{font-weight:400; color:#5b6478}
+  .frame{position:relative; width:100%; aspect-ratio:1280/860; overflow:hidden; border-radius:12px; box-shadow:0 10px 30px rgba(0,20,66,.15); background:#fff}
+  .frame iframe{position:absolute; top:0; left:0; width:1280px; height:860px; border:0; transform-origin:0 0}
+</style>
+</head>
+<body>
+  <h1>Choisis un fond clair et un fond sombre</h1>
+  <p class="sub">Aperçu du vrai site, en vue ordinateur. Tu peux faire défiler dans chaque miniature.</p>
+
+  <h2>☀️ Mode clair</h2>
+  <div class="row">
+    <figure><figcaption>A · Poster <span>(actuel) bleu très pâle + halos bleus</span></figcaption>
+      <div class="frame"><iframe src="index.html?preview&amp;theme=light" title="A"></iframe></div></figure>
+    <figure><figcaption>B · Glacier <span>blanc pur + grille de points</span></figcaption>
+      <div class="frame"><iframe src="index.html?preview&amp;theme=light&amp;bg=glacier" title="B"></iframe></div></figure>
+  </div>
+
+  <h2>🌙 Mode sombre</h2>
+  <div class="row">
+    <figure><figcaption>C · Océan <span>(actuel) bleu nuit</span></figcaption>
+      <div class="frame"><iframe src="index.html?preview&amp;theme=dark" title="C"></iframe></div></figure>
+    <figure><figcaption>D · Minuit <span>bleu nuit profond + lueur bleu roi</span></figcaption>
+      <div class="frame"><iframe src="index.html?preview&amp;theme=dark&amp;bg=minuit" title="D"></iframe></div></figure>
+    <figure><figcaption>E · Graphite <span>presque noir, neutre</span></figcaption>
+      <div class="frame"><iframe src="index.html?preview&amp;theme=dark&amp;bg=graphite" title="E"></iframe></div></figure>
+  </div>
+
+<script>
+  // scale each 1280px-wide page down to its thumbnail
+  function fit() {
+    document.querySelectorAll(".frame").forEach(function (f) {
+      f.querySelector("iframe").style.transform = "scale(" + f.clientWidth / 1280 + ")";
+    });
+  }
+  addEventListener("resize", fit);
+  fit();
+</script>
+</body>
+</html>

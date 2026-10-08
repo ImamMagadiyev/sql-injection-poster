@@ -4,107 +4,239 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Which SQL injection vulnerabilities should you fix first?</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap">
-<style>
-:root{
-  --ink:#080c14; --panel:#111828; --line:#1e2739;
-  --fg:#e9edf5; --dim:#8995ad; --accent:#4d9fff; --danger:#ff6b6b;
-  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
-  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  background:var(--ink); color:var(--fg);
-  font-family:var(--sans); font-size:16px; line-height:1.6;
-  -webkit-text-size-adjust:100%;
-  background-image:radial-gradient(800px 400px at 20% -10%, rgba(77,159,255,.15), transparent 70%);
-  background-repeat:no-repeat;
-}
-.wrap{max-width:620px; margin:0 auto; padding-inline:22px; padding-block:56px 72px}
-.eyebrow{
-  font-family:var(--mono); font-size:11px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--dim); margin:0 0 20px;
-}
-h1{
-  font-size:clamp(29px,7vw,42px); line-height:1.12; font-weight:800;
-  letter-spacing:-.02em; margin:0 0 22px; text-wrap:balance;
-}
-h1 em{font-style:normal; color:var(--accent)}
-.code{
-  font-family:var(--mono); font-size:12.5px; line-height:1.9; color:var(--dim);
-  background:var(--panel); border:1px solid var(--line); border-radius:10px;
-  padding:12px 13px; margin:0 0 30px;
-  white-space:pre-wrap; overflow-wrap:anywhere;
-}
-.code .inj{color:var(--danger); font-weight:700}
-.byline{font-family:var(--mono); font-size:12.5px; color:var(--dim); margin:0 0 34px}
-.cta{
-  display:block; text-align:center; text-decoration:none;
-  background:var(--accent); color:#06101f; font-weight:800; font-size:17px;
-  padding:19px; border-radius:12px; margin-bottom:46px;
-}
-.cta:hover{filter:brightness(1.08)}
-.cta:focus-visible{outline:3px solid var(--fg); outline-offset:3px}
-h2{
-  font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--dim); margin:0 0 6px;
-}
-.src a{
-  display:block; text-decoration:none; color:inherit;
-  padding:14px 2px; border-top:1px solid var(--line);
-}
-.src a:last-child{border-bottom:1px solid var(--line)}
-.src a:hover{background:rgba(77,159,255,.06)}
-.src .t{display:block; font-size:14.5px; line-height:1.45}
-.src .m{display:block; font-family:var(--mono); font-size:11.5px; color:var(--dim); margin-top:5px}
-.src .m::after{content:" ↗"; color:var(--accent)}
-footer{
-  margin-top:40px; font-family:var(--mono); font-size:11.5px; color:var(--dim);
-}
-@media (max-width:460px){
-  .code{font-size:11px; line-height:1.95; padding:11px 12px}
-}
-</style>
+<meta name="description" content="A short introduction to our poster on detecting, prioritizing and blocking SQL injection, by Imam Magadiyev and Yeadonaye Sentayehu, IUT Paul Sabatier.">
+<meta name="theme-color" content="#1e4cb4">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- share preview (WhatsApp, Discord, LinkedIn...): once the site is online, put the full address in og:url and og:image -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Which SQL injection vulnerabilities should you fix first?">
+<meta property="og:description" content="Detect, prioritize and block SQL injection, with an interactive demo. Poster &amp; tech talk, IUT Paul Sabatier.">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/lexend.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+<script src="vendor/gsap.min.js" defer></script>
+<script src="vendor/ScrollTrigger.min.js" defer></script>
+<script src="vendor/SplitText.min.js" defer></script>
+<script src="vendor/lenis.min.js" defer></script>
 </head>
 <body>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="loader" aria-hidden="true">
+  <div class="ld-box">
+    <svg class="ld-icon" viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><g class="ld-sweep"><path d="M24 24 L24 3 A21 21 0 0 1 42.2 13.5 Z"/></g><path class="ld-shield" d="M24 12 L33 15.5 V22.5 C33 28.5 29 32.5 24 34.5 C19 32.5 15 28.5 15 22.5 V15.5 Z"/></svg>
+    <p class="ld-title">Scanning for SQL injection risks</p>
+    <div class="ld-lines">
+      <p class="ld-line"><span>&gt; connecting to vulnerability database</span><b data-text="OK"></b></p>
+      <p class="ld-line"><span>&gt; counting Injection CVEs</span><b data-count="62445" data-suffix=" found"></b></p>
+      <p class="ld-line"><span>&gt; scoring 317 SQLi CVEs: CVSS + EPSS + EE</span><b data-count="153" data-suffix=" to fix first"></b></p>
+      <p class="ld-line"><span>&gt; loading poster</span><b data-text="ready ✓"></b></p>
+    </div>
+    <div class="ld-bar"><i></i></div>
+    <p class="ld-skip">click or press any key to skip</p>
+  </div>
+</div>
+<div class="progress" aria-hidden="true"></div>
 <div class="wrap">
 
-  <p class="eyebrow">Poster &amp; Tech Talk · English for Computer Science · BUT3</p>
+  <header class="banner" id="top">
+    <p class="eyebrow">Poster &amp; Tech Talk · English for Computer Science · BUT3</p>
+    <h1>Which SQL injection vulnerabilities should you fix first?</h1>
+    <hr>
+    <p class="question">Given that not all vulnerabilities can be fixed, how can a company detect, prioritize, and block SQL injection attacks?</p>
+  </header>
 
-  <h1>Which SQL injection vulnerabilities should you <em>fix first</em>?</h1>
-
-  <div class="code">pass = <span class="inj">'' OR '1'='1' --</span>  →  authentication bypassed</div>
-
-  <p class="byline">Magadiyev Imam &amp; Sentayehu Yeadonaye — IUT Paul Sabatier</p>
-
-  <a class="cta" href="poster.pdf">Open the full poster →</a>
-
-  <h2>Sources</h2>
-  <div class="src">
-    <a href="https://pure.qub.ac.uk/files/612065296/SQL_injection_attack.pdf">
-      <span class="t">Paul, Sharma &amp; Olukoya — <i>SQL injection attack: Detection, prioritization &amp; prevention</i></span>
-      <span class="m">J. Information Security and Applications · 2024</span>
-    </a>
-    <a href="https://top10.owasp.org/2025/A05_2025-Injection/">
-      <span class="t">OWASP Top 10:2025 — A05 Injection</span>
-      <span class="m">OWASP Foundation · 2025</span>
-    </a>
-    <a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">
-      <span class="t">SQL Injection Prevention Cheat Sheet</span>
-      <span class="m">OWASP Cheat Sheet Series</span>
-    </a>
-    <a href="https://www.cybertec-postgresql.com/en/postgresql-tde-performance/">
-      <span class="t">PostgreSQL performance: Encrypted vs. unencrypted</span>
-      <span class="m">CYBERTEC PostgreSQL International · 2025</span>
-    </a>
+  <div class="meta">
+    <div class="authors">
+      <div class="author">
+        <span class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c.8-4.3 4.2-6.6 8.5-6.6s7.7 2.3 8.5 6.6z"/></svg></span>
+        <div><b>Imam Magadiyev</b><a href="mailto:imam.magadiyev@etu.iut-tlse3.fr">imam.magadiyev@etu.iut-tlse3.fr</a></div>
+      </div>
+      <div class="author">
+        <span class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 21c.8-4.3 4.2-6.6 8.5-6.6s7.7 2.3 8.5 6.6z"/></svg></span>
+        <div><b>Yeadonaye Sentayehu</b><a href="mailto:yeadonaye-ashenafi.sentayehu@etu.iut-tlse3.fr">yeadonaye-ashenafi.sentayehu@etu.iut-tlse3.fr</a></div>
+      </div>
+    </div>
+    <a class="btn primary" href="poster.html">Open the poster →</a>
   </div>
+
+  <section class="card" id="attack">
+    <h2 class="pill">The attack in one line</h2>
+    <p class="lead">Type this in a login form, and a badly written website lets you in without a password:</p>
+    <div class="login typed" role="img" aria-label="Login form: username admin, password ' OR '1'='1' --, result: access granted">
+      <div class="login-bar"><i></i><i></i><i></i><span>bank.example/login</span></div>
+      <div class="field"><span class="flabel">Username</span><span class="input">admin</span></div>
+      <div class="field"><span class="flabel">Password</span><span class="input pw"><span class="inj">' OR '1'='1' --</span></span></div>
+      <div class="login-foot"><span class="fake-btn">Log in</span><span class="result">Access granted: authentication bypassed</span></div>
+    </div>
+    <p class="query-label">What the database actually runs:</p>
+    <div class="code query">SELECT * FROM users WHERE name = 'admin'
+AND pass = '<span class="inj">' OR '1'='1'</span> <span class="cm">-- '</span> <span class="cm hint">← always true, the rest is a comment</span></div>
+    <p>This is <b>SQL injection</b>: the site mixes what you type into its database query, so your input runs as code.</p>
+  </section>
+
+  <section class="funnel" id="funnel" aria-label="From 62,445 known flaws to 153 to fix first">
+    <div class="funnel-sticky">
+      <div class="funnel-card">
+        <p class="funnel-kicker">You can't fix them all. You can fix the right ones.</p>
+        <div class="funnel-stage">
+          <p class="fbig" aria-hidden="true">62,445</p>
+          <div class="funnel-steps">
+            <div class="fstep">
+              <p class="fnum">62,445</p>
+              <p class="ftitle">known flaws (CVEs) in OWASP's Injection category</p>
+              <p class="fnote">▲ +95% since 2021: far more than any team can fix</p>
+            </div>
+            <div class="fstep">
+              <p class="fnum">317</p>
+              <p class="ftitle">SQL injection CVEs analysed in the study</p>
+              <p class="fnote">NVD, 2020–2023, each scored with CVSS, EPSS and EE</p>
+            </div>
+            <div class="fstep">
+              <p class="fnum">153</p>
+              <p class="ftitle">flagged "fix first" by the combined risk model</p>
+              <p class="fnote">about half the list, with minimal wasted effort</p>
+            </div>
+          </div>
+        </div>
+        <div class="funnel-dots" aria-hidden="true"></div>
+        <div class="funnel-foot" aria-hidden="true">
+          <div class="funnel-progress"><i></i><i></i><i></i></div>
+          <span class="funnel-scale">illustration, not to scale</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lab" id="lab" hidden>
+    <div class="lab-head">
+      <div>
+        <p class="lab-kicker">Interactive demo</p>
+        <h2 class="lab-title">Try it yourself</h2>
+        <p class="lab-sub">Pick an example, watch the query the server builds, then switch the protection on.</p>
+        <button type="button" class="demo-btn" id="lab-demo"><span class="demo-ic" aria-hidden="true">▶</span> <span class="demo-txt">Play the auto demo</span></button>
+      </div>
+      <div class="guard-card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 L20 5.5 V11.5 C20 16.5 16.6 20 12 21.5 C7.4 20 4 16.5 4 11.5 V5.5 Z"/></svg>
+        <div class="guard-text"><b>Prepared statements</b><span id="lab-guard-label">OFF: input is pasted into the query</span></div>
+        <button type="button" class="switch" id="lab-guard" role="switch" aria-checked="false" aria-label="Prepared statements"><i></i></button>
+      </div>
+    </div>
+
+    <div class="presets" role="group" aria-label="Examples">
+      <button type="button" data-u="admin" data-p="' OR '1'='1' --"><span class="pi" aria-hidden="true">🔓</span><span class="pt">Bypass login</span></button>
+      <button type="button" data-u="admin'--" data-p="anything"><span class="pi" aria-hidden="true">✂️</span><span class="pt">Comment out</span></button>
+      <button type="button" data-u="' UNION SELECT username, password FROM users --" data-p=""><span class="pi" aria-hidden="true">🕵️</span><span class="pt">Steal data</span></button>
+      <button type="button" data-u="'; DROP TABLE users; --" data-p=""><span class="pi" aria-hidden="true">💣</span><span class="pt">Delete table</span></button>
+      <button type="button" data-u="admin' AND SLEEP(5) --" data-p=""><span class="pi" aria-hidden="true">⏱️</span><span class="pt">Blind attack</span></button>
+      <button type="button" data-u="admin" data-p="s3cret"><span class="pi" aria-hidden="true">✅</span><span class="pt">Normal login</span></button>
+    </div>
+
+    <div class="lab-stage">
+      <div class="pane browser">
+        <div class="pane-bar"><i></i><i></i><i></i><span class="url">🔒 bank.example/login</span></div>
+        <div class="pane-body">
+          <p class="bank-logo">◆ MyBank</p>
+          <label class="field-v"><span>Username</span><input class="input" id="lab-u" value="admin" autocomplete="off" spellcheck="false"></label>
+          <label class="field-v"><span>Password</span><input class="input" id="lab-p" value="" autocomplete="off" spellcheck="false"></label>
+          <span class="fake-submit" aria-hidden="true">Log in</span>
+          <p class="hint-pw">Hint: the real password is <code>s3cret</code>.</p>
+        </div>
+      </div>
+      <div class="wire" aria-hidden="true"><span class="packet"></span></div>
+      <div class="pane server">
+        <div class="pane-bar dark"><span class="dot-live"></span><span>database server · query.sql</span></div>
+        <div class="code lab-query" id="lab-q"></div>
+      </div>
+    </div>
+
+    <div class="verdict" id="lab-v" aria-live="polite"><span class="v-icon" aria-hidden="true"></span><div><b></b><span class="v-text"></span></div></div>
+  </section>
+
+  <section class="card quiz" id="quiz" hidden>
+    <h2 class="pill">Quick quiz</h2>
+    <p class="lead">3 questions, 3 different formats. How much do you remember?</p>
+    <div class="quiz-steps" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="quiz-body" aria-live="polite"></div>
+  </section>
+
+  <section class="card" id="inside">
+    <h2 class="pill">What you will find in the poster</h2>
+    <div class="steps">
+      <div class="stepcard">
+        <svg class="icon radar" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="12"/><circle cx="24" cy="24" r="4"/><g class="sweep"><path d="M24 24 L24 4 A20 20 0 0 1 41.3 14 Z"/></g><circle class="blip" cx="33" cy="15" r="2.4"/></svg>
+        <p class="step">01 · Detect</p>
+        <p>How a deep-learning model recognises SQL injection in real network traffic, with a 97% F1-score.</p>
+      </div>
+      <div class="stepcard">
+        <svg class="icon rank" viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="34" height="7" rx="3.5"/><rect x="6" y="21" width="24" height="7" rx="3.5"/><rect x="6" y="32" width="14" height="7" rx="3.5"/></svg>
+        <p class="step">02 · Prioritize</p>
+        <p>Why a single score (CVSS or EPSS) is not enough, and what works better.</p>
+      </div>
+      <div class="stepcard">
+        <svg class="icon shield" viewBox="0 0 48 48" aria-hidden="true"><path class="sh" d="M24 4 L40 10 V22 C40 33 33 40.5 24 44 C15 40.5 8 33 8 22 V10 Z"/><path class="tick" d="M16.5 24 L22 29.5 L32 18.5"/></svg>
+        <p class="step">03 · Block</p>
+        <p>The simple defense that stops most attacks, and what extra protection costs.</p>
+      </div>
+    </div>
+  </section>
+
+  <a class="cta" href="poster.html">Open the full poster →</a>
+
+  <section id="sources">
+    <h2 class="label">Sources</h2>
+    <div class="src">
+      <a href="https://pure.qub.ac.uk/files/612065296/SQL_injection_attack.pdf">
+        <span class="t">Paul, Sharma &amp; Olukoya — <i>SQL injection attack: Detection, prioritization &amp; prevention</i></span>
+        <span class="m">J. Information Security and Applications · 2024</span>
+      </a>
+      <a href="https://top10.owasp.org/2025/A05_2025-Injection/">
+        <span class="t">OWASP Top 10:2025 — A05 Injection</span>
+        <span class="m">OWASP Foundation · 2025</span>
+      </a>
+      <a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">
+        <span class="t">SQL Injection Prevention Cheat Sheet</span>
+        <span class="m">OWASP Cheat Sheet Series</span>
+      </a>
+      <a href="https://www.cybertec-postgresql.com/en/postgresql-tde-performance/">
+        <span class="t">PostgreSQL performance: Encrypted vs. unencrypted</span>
+        <span class="m">CYBERTEC PostgreSQL International · 2025</span>
+      </a>
+    </div>
+  </section>
 
   <footer>IUT Paul Sabatier · Université Toulouse III · 2026</footer>
 
+</div>
+<nav class="dots-nav" aria-label="Sections">
+  <a href="#top" data-label="Top"></a>
+  <a href="#attack" data-label="The attack"></a>
+  <a href="#funnel" data-label="The numbers"></a>
+  <a href="#lab" data-label="Try it yourself"></a>
+  <a href="#quiz" data-label="Quiz"></a>
+  <a href="#inside" data-label="The poster"></a>
+</nav>
+<button type="button" class="to-top" aria-label="Back to top">↑</button>
+<button type="button" class="theme-toggle" aria-label="Switch to dark mode">
+  <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+  <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+</button>
+<button type="button" class="kbd-hint" aria-label="Show keyboard shortcuts">Press <kbd>?</kbd> for shortcuts</button>
+<div class="kbd-help" role="dialog" aria-label="Keyboard shortcuts" hidden>
+  <p class="kbd-title">Keyboard shortcuts</p>
+  <ul>
+    <li><kbd>D</kbd> play / stop the lab demo</li>
+    <li><kbd>L</kbd> go to the lab</li>
+    <li><kbd>Q</kbd> go to the quiz</li>
+    <li><kbd>P</kbd> open the poster</li>
+    <li><kbd>T</kbd> back to the top</li>
+    <li><kbd>M</kbd> switch light / dark mode</li>
+    <li><kbd>?</kbd> show / hide this panel</li>
+  </ul>
 </div>
 </body>
 </html>
